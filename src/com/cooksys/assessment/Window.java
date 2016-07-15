@@ -18,9 +18,13 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.ListSelectionModel;
 
 public class Window {
-
+	JList leftJList, rightJList;
+	ArrayList<String> leftList = new ArrayList<String>();
+	ArrayList<String> rightList = new ArrayList<String>();
+	
 	private JFrame frame;
 
 	/**
@@ -52,6 +56,17 @@ public class Window {
 	 * Initialize the contents of the frame. This is where Window Builder
 	 * will generate its code.
 	 */
+	
+	void initializeList(){
+		leftList.add("Case");
+		leftList.add("Motherboard");
+		leftList.add("CPU");
+		leftList.add("GPU");
+		leftList.add("PSU");
+		leftList.add("RAM");
+		leftList.add("HDD");
+	}
+	
 	public void initialize() {
 		frame = new JFrame();
 		frame.setBounds(100, 100, 450, 300);
@@ -68,19 +83,19 @@ public class Window {
 		menu.add(exitMenuItem);
 		menuBar.add(menu);
 
+		initializeList();
+		
 		frame.getContentPane().add(menuBar, BorderLayout.NORTH);
-		
-		ArrayList<String> list1 = new ArrayList<String>();
-		list1.add("Rajvi Rathore");
-		list1.add("Amogh Rathore");
-		
-		JList leftJList = new JList(list1.toArray());		
+				
+		leftJList = new JList(leftList.toArray());		
+		leftJList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		JScrollPane leftScrollPane = new JScrollPane(leftJList);
 		
 		JPanel centerPanel = new JPanel();
 		centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));		
 		
-		JList rightJList = new JList();
+		rightJList = new JList();
+		rightJList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		JScrollPane rightScrollPane = new JScrollPane(rightJList);
 		
 		JPanel mainPanel = new JPanel(new GridLayout(1, 3));
@@ -89,6 +104,16 @@ public class Window {
 		
 		JButton removeButton = new JButton("<<");
 		JButton addButton = new JButton(">>");
+		addButton.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				transferItem(leftList, leftJList, rightList, rightJList);
+			}
+		});
+		removeButton.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				transferItem(rightList, rightJList, leftList, leftJList);
+			}
+		});
 		removeButton.setAlignmentX(JComponent.CENTER_ALIGNMENT);
 		addButton.setAlignmentX(JComponent.CENTER_ALIGNMENT);
 
@@ -101,5 +126,14 @@ public class Window {
 		centerPanel.add(box);
 		mainPanel.add(rightScrollPane);
 		frame.getContentPane().add(mainPanel, BorderLayout.CENTER);
+	}
+	
+	void transferItem(ArrayList<String> srcList, JList srcJList, ArrayList<String> dstList, JList dstJList){
+		int selection = srcJList.getSelectedIndex();
+		String item = selection!=-1?srcList.remove(selection):null;
+		if(item != null)
+			dstList.add(item);
+		srcJList.setListData(srcList.toArray());
+		dstJList.setListData(dstList.toArray());
 	}
 }
