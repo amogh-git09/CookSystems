@@ -62,6 +62,7 @@ public class Window {
 	 * will generate its code.
 	 */
 	
+	//left list initialization
 	void initializeLists(){
 		leftList = new ItemList();
 		rightList = new ItemList();
@@ -75,11 +76,13 @@ public class Window {
 	}
 	
 	public void initialize() {
-		frame = new JFrame();
+		//frame
+		frame = new JFrame("Assemble your computer");
 		frame.setBounds(100, 100, 450, 300);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(new BorderLayout(0, 0));
 
+		//Menubar and menu items
 		JMenuBar menuBar = new JMenuBar();
 		JMenu menu = new JMenu("File");
 		JMenuItem loadMenuItem = new JMenuItem("Load");
@@ -98,28 +101,39 @@ public class Window {
 		});
 		menu.add(saveMenuItem);
 		JMenuItem exitMenuItem = new JMenuItem("Exit");
+		exitMenuItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				System.exit(0);
+			}
+		});
 		menu.add(exitMenuItem);
 		menuBar.add(menu);
 
 		initializeLists();
 		
+		//menu to the north
 		frame.getContentPane().add(menuBar, BorderLayout.NORTH);
 				
+		//prepare left panel
 		leftJList = new JList(leftList.toArray());		
 		leftJList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		JScrollPane leftScrollPane = new JScrollPane(leftJList);
 		
+		//center panel
 		JPanel centerPanel = new JPanel();
 		centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));		
 		
+		//prepare right panel
 		rightJList = new JList();
 		rightJList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		JScrollPane rightScrollPane = new JScrollPane(rightJList);
 		
+		//Use 1x3 grid as the main container
 		JPanel mainPanel = new JPanel(new GridLayout(1, 3));
 		mainPanel.add(leftScrollPane);
 		mainPanel.add(centerPanel);
 		
+		//add two buttons
 		JButton removeButton = new JButton("<<");
 		JButton addButton = new JButton(">>");
 		addButton.addActionListener(new ActionListener(){
@@ -135,6 +149,7 @@ public class Window {
 		removeButton.setAlignmentX(JComponent.CENTER_ALIGNMENT);
 		addButton.setAlignmentX(JComponent.CENTER_ALIGNMENT);
 
+		//Buttons added inside a box 
 		Box box = new Box(BoxLayout.Y_AXIS);		
 		box.add(Box.createVerticalGlue());
 		box.add(addButton);
@@ -190,10 +205,11 @@ public class Window {
 		}
 	}
 	
+	//show dialog box to choose file to open
 	ItemList loadFromFile(){
 		JFileChooser fileChooser = new JFileChooser();
 		fileChooser.setDialogTitle("Select file");
-		int userSelection = fileChooser.showSaveDialog(frame);
+		int userSelection = fileChooser.showOpenDialog(frame);
 		
 		if(userSelection == JFileChooser.APPROVE_OPTION){
 			File file = fileChooser.getSelectedFile();
@@ -202,6 +218,7 @@ public class Window {
 		return null;
 	}
 	
+	//load xml file to right panel list
 	ItemList loadListFromXml(File file){
 		try {
 			JAXBContext jaxbContext = JAXBContext.newInstance(ItemList.class);
