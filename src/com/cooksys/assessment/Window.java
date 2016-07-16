@@ -5,12 +5,13 @@ import java.awt.EventQueue;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
+import java.io.File;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JMenu;
@@ -19,11 +20,15 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 
 public class Window {
 	JList leftJList, rightJList;
-	ArrayList<String> leftList = new ArrayList<String>();
-	ArrayList<String> rightList = new ArrayList<String>();
+	ItemList leftList;
+	ItemList rightList;
 	
 	private JFrame frame;
 
@@ -57,14 +62,16 @@ public class Window {
 	 * will generate its code.
 	 */
 	
-	void initializeList(){
-		leftList.add("Case");
-		leftList.add("Motherboard");
-		leftList.add("CPU");
-		leftList.add("GPU");
-		leftList.add("PSU");
-		leftList.add("RAM");
-		leftList.add("HDD");
+	void initializeLists(){
+		leftList = new ItemList();
+		rightList = new ItemList();
+		leftList.addItem("Case");
+		leftList.addItem("Motherboard");
+		leftList.addItem("CPU");
+		leftList.addItem("GPU");
+		leftList.addItem("PSU");
+		leftList.addItem("RAM");
+		leftList.addItem("HDD");
 	}
 	
 	public void initialize() {
@@ -76,14 +83,25 @@ public class Window {
 		JMenuBar menuBar = new JMenuBar();
 		JMenu menu = new JMenu("File");
 		JMenuItem loadMenuItem = new JMenuItem("Load");
+		loadMenuItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				rightList = loadFromFile();
+				rightJList.setListData(rightList.toArray());
+			}
+		});
 		menu.add(loadMenuItem);		
 		JMenuItem saveMenuItem = new JMenuItem("Save");
+		saveMenuItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				saveListToFile();
+			}
+		});
 		menu.add(saveMenuItem);
 		JMenuItem exitMenuItem = new JMenuItem("Exit");
 		menu.add(exitMenuItem);
 		menuBar.add(menu);
 
-		initializeList();
+		initializeLists();
 		
 		frame.getContentPane().add(menuBar, BorderLayout.NORTH);
 				
@@ -106,12 +124,12 @@ public class Window {
 		JButton addButton = new JButton(">>");
 		addButton.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				transferItem(leftList, leftJList, rightList, rightJList);
+				addItem();
 			}
 		});
 		removeButton.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				transferItem(rightList, rightJList, leftList, leftJList);
+				removeItem();
 			}
 		});
 		removeButton.setAlignmentX(JComponent.CENTER_ALIGNMENT);
@@ -128,12 +146,72 @@ public class Window {
 		frame.getContentPane().add(mainPanel, BorderLayout.CENTER);
 	}
 	
-	void transferItem(ArrayList<String> srcList, JList srcJList, ArrayList<String> dstList, JList dstJList){
-		int selection = srcJList.getSelectedIndex();
-		String item = selection!=-1?srcList.remove(selection):null;
+	//adds item to the right list
+	void addItem(){
+		int selection = leftJList.getSelectedIndex();
+		String item = selection!=-1?leftList.getItem(selection):null;
 		if(item != null)
-			dstList.add(item);
-		srcJList.setListData(srcList.toArray());
-		dstJList.setListData(dstList.toArray());
+			rightList.addItem(item);
+		leftJList.setListData(leftList.toArray());
+		rightJList.setListData(rightList.toArray());
+	}
+	
+	//remove item from the right list
+	void removeItem(){
+		int selection = rightJList.getSelectedIndex();
+		if(selection != -1)
+			rightList.removeItem(selection);
+		rightJList.setListData(rightList.toArray());
+	}
+	
+	//open file selection dialog box
+	void saveListToFile(){
+		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setDialogTitle("Select output file");
+		int userSelection = fileChooser.showSaveDialog(frame);
+		
+		if(userSelection == JFileChooser.APPROVE_OPTION){
+			File file = fileChooser.getSelectedFile();
+			saveListAsXml(rightList, file);
+		}
+	}
+	
+	//saves list to passed file in xml format
+	void saveListAsXml(ItemList list, File file){
+		try{
+			JAXBContext jaxbContext = JAXBContext.newInstance(ItemList.class);
+			Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+			
+			jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+			
+			jaxbMarshaller.marshal(list, file);
+		} catch(JAXBException e){
+			e.printStackTrace();
+		}
+	}
+	
+	ItemList loadFromFile(){
+		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setDialogTitle("Select file");
+		int userSelection = fileChooser.showSaveDialog(frame);
+		
+		if(userSelection == JFileChooser.APPROVE_OPTION){
+			File file = fileChooser.getSelectedFile();
+			return loadListFromXml(file);
+		}
+		return null;
+	}
+	
+	ItemList loadListFromXml(File file){
+		try {
+			JAXBContext jaxbContext = JAXBContext.newInstance(ItemList.class);
+			Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+			ItemList list = (ItemList) jaxbUnmarshaller.unmarshal(file);
+			return list;
+		} catch (JAXBException e){
+			e.printStackTrace();
+			return null;
+		}
 	}
 }
+
