@@ -63,7 +63,7 @@ public class Window {
 	 * will generate its code.
 	 */
 	
-	//left list initialization
+	//initialize lists
 	void initializeLists(){
 		leftList = new ItemList();
 		rightList = new ItemList();
