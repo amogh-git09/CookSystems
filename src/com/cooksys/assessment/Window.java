@@ -17,6 +17,7 @@ import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
@@ -196,10 +197,9 @@ public class Window {
 		try{
 			JAXBContext jaxbContext = JAXBContext.newInstance(ItemList.class);
 			Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
-			
 			jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-			
 			jaxbMarshaller.marshal(list, file);
+			JOptionPane.showMessageDialog(frame, "List saved successfully");
 		} catch(JAXBException e){
 			e.printStackTrace();
 		}
