@@ -33,8 +33,9 @@ public class ItemList {
 	}
 	
 	//list to array
-	public Object[] toArray(){
-		return list.toArray();
+	public String[] toArray(){
+		String[] tmp = new String[list.size()];
+		return list.toArray(tmp);
 	}
 	
 	//get item at specified index

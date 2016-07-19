@@ -27,7 +27,7 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
 public class Window {
-	JList leftJList, rightJList;
+	JList<String> leftJList, rightJList;
 	ItemList leftList;
 	ItemList rightList;
 	
@@ -116,7 +116,7 @@ public class Window {
 		frame.getContentPane().add(menuBar, BorderLayout.NORTH);
 				
 		//prepare left panel
-		leftJList = new JList(leftList.toArray());		
+		leftJList = new JList<String>(leftList.toArray());		
 		leftJList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		JScrollPane leftScrollPane = new JScrollPane(leftJList);
 		
@@ -125,7 +125,7 @@ public class Window {
 		centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));		
 		
 		//prepare right panel
-		rightJList = new JList();
+		rightJList = new JList<String>();
 		rightJList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		JScrollPane rightScrollPane = new JScrollPane(rightJList);
 		
